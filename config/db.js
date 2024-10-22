@@ -1,46 +1,31 @@
-const sql = require("mssql");
+const mysql = require("mysql");
+const dotenv = require("dotenv");
 
-// Configuration object
-const config = {
-  user: "nextp-dev",
-  password: "Tu#9nb@T%EAdqWCH",
-  server: "nextp-dev.database.windows.net",
-  database: "nextp-database-dev",
-  options: {
-    encrypt: true,
-    enableArithAbort: true,
-  },
-  pool: {
-    max: 10, // Maximum number of connections in the pool
-    min: 0, // Minimum number of connections in the pool
-    idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
-  },
-};
+dotenv.config();
 
-// Global pool connection
-const poolPromise = new sql.ConnectionPool(config)
-  .connect()
-  .then((pool) => {
-    console.log("Connected to Azure SQL Database");
-    return pool;
-  })
-  .catch((err) => {
-    console.error("Database Connection Failed!", err);
-    process.exit(1);
-  });
-
-// Query function using the connection pool
-async function executeQuery(query) {
-  try {
-    const pool = await poolPromise;
-    const result = await pool.request().query(query);
-    return result.recordset;
-  } catch (err) {
-    console.error("SQL error", err);
-  }
-}
-
-// Example usage of the executeQuery function
-executeQuery("SELECT TOP 1 * FROM companies").then((result) => {
-  console.log(result);
+var connection = mysql.createConnection({
+  host: "nextp-dev.mysql.database.azure.com",
+  user: "nextpadmin",
+  password: "Wtt2pBtcbda6RB2",
+  database: "nextp-dev-database",
+  port: 3306,
+  ssl: false,
 });
+
+// const connection = mysql.createConnection({
+//   host: process.env.DB_HOST,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   database: process.env.DB_NAME,
+//   ssl: false,
+// });
+
+connection.connect((err) => {
+  if (err) {
+    console.error("Database connection failed: ", err);
+    return;
+  }
+  console.log("Connected to database");
+});
+
+module.exports = connection;
