@@ -2,13 +2,13 @@ const bcrypt = require("bcryptjs");
 const db = require("../config/db");
 
 exports.register = async (req, res) => {
-  let { email, password, role, first_name, last_name, company_id, phone_no } =
+  const { email, password, role, first_name, last_name, company_name, phone_no } =
     req.body;
 
   try {
     // Check if the company exists
     const checkCompanyQuery = "SELECT id FROM companies WHERE name = ?";
-    db.query(checkCompanyQuery, [company_id], async (err, companyResults) => {
+    db.query(checkCompanyQuery, [company_name], async (err, companyResults) => {
       if (err) {
         return res.status(500).json({ message: "Database error" });
       }
@@ -17,7 +17,7 @@ exports.register = async (req, res) => {
         return res.status(400).json({ message: "Company does not exist" });
       }
 
-      company_id = companyResults[0].id;
+      let company_id = companyResults[0].id;
 
       // Check if the user already exists
       const checkUserQuery = "SELECT * FROM users WHERE email = ?";
